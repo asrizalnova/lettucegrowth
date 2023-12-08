@@ -4,6 +4,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 import streamlit as st
+import pickle
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 # load Dataset nya
 dataframe = pd.read_csv("lettuce_dataset.csv", encoding='latin-1')
@@ -12,8 +15,17 @@ dataframe['Date'] = pd.to_datetime(dataframe['Date'])
 # Sidebar
 st.sidebar.title("Lettuce Growth Prediction")
 
-# Sidebar menu
+# Date Range Input
+date_range = st.sidebar.date_input("Select Date Range", [dataframe['Date'].min(), dataframe['Date'].max()])
 
+# Convert date_range values to numpy.datetime64
+start_date = np.datetime64(date_range[0])
+end_date = np.datetime64(date_range[1])
+
+# Filter dataframe based on date range
+filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['Date'] <= end_date)]
+
+# Sidebar menu
 menu = st.sidebar.selectbox('Menu', ['Home', 'Dataset Overview', 'Correlation Heatmap', 'Histograms', 'Scatter Plots', 'Box Plots'])
 
 # Content
@@ -25,30 +37,30 @@ if menu == 'Home':
 elif menu == 'Dataset Overview':
     st.subheader("Dataset Overview")
     st.write("Top 10 Rows of the Dataset:")
-    st.write(dataframe.head(10))
+    st.write(filtered_dataframe.head(10))
 
     st.write("Bottom 10 Rows of the Dataset:")
-    st.write(dataframe.tail(10))
+    st.write(filtered_dataframe.tail(10))
 
     st.write("Dataset Shape:")
-    st.write(dataframe.shape)
+    st.write(filtered_dataframe.shape)
 
     st.write("Dataset Info:")
-    st.write(dataframe.info())
+    st.write(filtered_dataframe.info())
 
     st.write("Summary Statistics:")
-    st.write(dataframe.describe())
+    st.write(filtered_dataframe.describe())
 
     st.write("Missing Values Count:")
-    st.write(dataframe.isna().sum())
+    st.write(filtered_dataframe.isna().sum())
 
     st.write("Duplicate Rows Count:")
-    st.write(dataframe.duplicated().sum())
+    st.write(filtered_dataframe.duplicated().sum())
 
 elif menu == 'Correlation Heatmap':
     st.subheader("Correlation Heatmap")
     plt.figure(figsize=(8, 8))
-    sns.heatmap(dataframe.corr(), annot=True, cmap="Reds", fmt=".2f")
+    sns.heatmap(filtered_dataframe.corr(), annot=True, cmap="Reds", fmt=".2f")
     st.pyplot()
 
 elif menu == 'Histograms':
@@ -102,3 +114,8 @@ elif menu == 'Box Plots':
     st.plotly_chart(fig)
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
+
+
+# ... (Remaining code for other menu options)
+
+# You can continue modifying the code for other menu options as needed.
