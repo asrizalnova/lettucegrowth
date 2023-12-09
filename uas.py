@@ -14,16 +14,6 @@ dataframe['Date'] = pd.to_datetime(dataframe['Date'])
 # Sidebar
 st.sidebar.title("Lettuce Growth Prediction")
 
-# Date Range Input
-date_range = st.sidebar.date_input("Pilih range tanggal(3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
-
-
-start_date = np.datetime64(date_range[0])
-end_date = np.datetime64(date_range[1])
-
-# Filter dataframe range tanggal
-filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['Date'] <= end_date)]
-
 # Sidebar menu
 menu = st.sidebar.selectbox('Menu', ['Home', 'Dataset Overview', 'Correlation Heatmap', 'Histograms', 'Scatter Plots', 'Box Plots', 'Prediction'])
 
@@ -56,8 +46,7 @@ elif menu == 'Dataset Overview':
     st.write("Duplicate Rows Count:")
     st.write(dataframe.duplicated().sum())
 
-    st.write("Dataframe yang Difilter:")
-    st.write(filtered_dataframe)
+
 
 elif menu == 'Correlation Heatmap':
     st.subheader("Correlation Heatmap")
@@ -117,6 +106,16 @@ elif menu == 'Box Plots':
 
 elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
+
+    # Date Range Input (berpindah ke sini)
+    date_range = st.date_input("Pilih range tanggal(Data hanya tersedia dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
+
+    start_date = np.datetime64(date_range[0])
+    end_date = np.datetime64(date_range[1])
+
+    # Filter dataframe range tanggal
+    filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['Date'] <= end_date)]
+
     st.write("Dataframe yang Difilter:")
     st.write(filtered_dataframe)
 
@@ -131,14 +130,14 @@ elif menu == 'Prediction':
     # memisah data ke training dan testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Initialize and train the Random Forest model
-    model = RandomForestRegressor(n_estimators=100, random_state=42)  # You can adjust n_estimators as needed
+    # inisialisasi dan train Random Forest
+    model = RandomForestRegressor(n_estimators=100, random_state=42)  
     model.fit(X_train, y_train)
 
     predictions = model.predict(X_test)
 
     # menampilkan predictions dan actual values
-    st.write("Predictions vs Actual Values:")
+    st.write("Predictions vs Data Real:")
     result_df = pd.DataFrame({'Actual': y_test, 'Predicted': predictions})
     st.write(result_df)
 
