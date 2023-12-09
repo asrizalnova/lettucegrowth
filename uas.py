@@ -28,7 +28,7 @@ filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['D
 menu = st.sidebar.selectbox('Menu', ['Home', 'Dataset Overview', 'Correlation Heatmap', 'Histograms', 'Scatter Plots', 'Box Plots', 'Prediction'])
 
 # Content
-st.title("Lettuce Growth Analysis")
+st.title("Lettuce Growth")
 
 if menu == 'Home':
     st.image('selada.jpg', caption='Lettuce Growth', use_column_width=True)
@@ -117,6 +117,8 @@ elif menu == 'Box Plots':
 
 elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
+    st.write("Dataframe yang Difilter:")
+    st.write(filtered_dataframe)
 
     # memilih target features dan target
     features = ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level']
