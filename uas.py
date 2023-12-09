@@ -4,10 +4,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 import streamlit as st
-from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
-# Load Dataset
+# proses dataset
 dataframe = pd.read_csv("lettuce_dataset.csv", encoding='latin-1')
 dataframe['Date'] = pd.to_datetime(dataframe['Date'])
 
@@ -15,13 +15,13 @@ dataframe['Date'] = pd.to_datetime(dataframe['Date'])
 st.sidebar.title("Lettuce Growth Prediction")
 
 # Date Range Input
-date_range = st.sidebar.date_input("Select Date Range", [dataframe['Date'].min(), dataframe['Date'].max()])
+date_range = st.sidebar.date_input("Pilih range tanggal(3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
 
-# Convert date_range values to numpy.datetime64
+
 start_date = np.datetime64(date_range[0])
 end_date = np.datetime64(date_range[1])
 
-# Filter dataframe based on date range
+# Filter dataframe range tanggal
 filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['Date'] <= end_date)]
 
 # Sidebar menu
@@ -55,6 +55,9 @@ elif menu == 'Dataset Overview':
 
     st.write("Duplicate Rows Count:")
     st.write(dataframe.duplicated().sum())
+
+    st.write("Dataframe yang Difilter:")
+    st.write(filtered_dataframe)
 
 elif menu == 'Correlation Heatmap':
     st.subheader("Correlation Heatmap")
@@ -112,37 +115,34 @@ elif menu == 'Box Plots':
     fig = px.box(dataframe, x="Humidity (%)", y="Growth Days", title="Growth Days Vs Humidity (%)", color_discrete_sequence=["black"])
     st.plotly_chart(fig)
 
-
 elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
 
-    # Select features and target variable
+    # memilih target features dan target
     features = ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level']
     target = 'Growth Days'
 
-    # Split the data into features and target variable
+    # memisah data ke variable features dan target
     X = filtered_dataframe[features]
     y = filtered_dataframe[target]
 
-    # Split the data into training and testing sets
+    # memisah data ke training dan testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Initialize and train the linear regression model
-    model = LinearRegression()
+    # Initialize and train the Random Forest model
+    model = RandomForestRegressor(n_estimators=100, random_state=42)  # You can adjust n_estimators as needed
     model.fit(X_train, y_train)
 
-    # Make predictions on the testing set
     predictions = model.predict(X_test)
 
-    # Display the predictions and actual values
+    # menampilkan predictions dan actual values
     st.write("Predictions vs Actual Values:")
     result_df = pd.DataFrame({'Actual': y_test, 'Predicted': predictions})
     st.write(result_df)
 
-    # Display a scatter plot of actual vs predicted values
+    # menampilkan scatter plot of actual vs predicted values
     st.subheader("Scatter Plot of Actual vs Predicted Values")
     fig = px.scatter(result_df, x='Actual', y='Predicted', labels={'Actual': 'Actual Values', 'Predicted': 'Predicted Values'})
     st.plotly_chart(fig)
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
-
