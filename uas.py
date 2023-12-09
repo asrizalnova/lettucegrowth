@@ -46,8 +46,6 @@ elif menu == 'Dataset Overview':
     st.write("Duplicate Rows Count:")
     st.write(dataframe.duplicated().sum())
 
-
-
 elif menu == 'Correlation Heatmap':
     st.subheader("Correlation Heatmap")
     plt.figure(figsize=(8, 8))
@@ -104,10 +102,11 @@ elif menu == 'Box Plots':
     fig = px.box(dataframe, x="Humidity (%)", y="Growth Days", title="Growth Days Vs Humidity (%)", color_discrete_sequence=["black"])
     st.plotly_chart(fig)
 
+
 elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
 
-    # Date Range Input (berpindah ke sini)
+    # Date Range Input
     date_range = st.date_input("Pilih range tanggal(Data hanya tersedia dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
 
     start_date = np.datetime64(date_range[0])
@@ -118,6 +117,9 @@ elif menu == 'Prediction':
 
     st.write("Dataframe yang Difilter:")
     st.write(filtered_dataframe)
+
+    # Parameter input untuk model Random Forest
+    n_estimators = st.slider("Jumlah Estimator (n_estimators)", min_value=1, max_value=500, value=100, step=1)
 
     # memilih target features dan target
     features = ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level']
@@ -131,7 +133,7 @@ elif menu == 'Prediction':
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # inisialisasi dan train Random Forest
-    model = RandomForestRegressor(n_estimators=100, random_state=42)  
+    model = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
     model.fit(X_train, y_train)
 
     predictions = model.predict(X_test)
@@ -144,6 +146,13 @@ elif menu == 'Prediction':
     # menampilkan scatter plot of actual vs predicted values
     st.subheader("Scatter Plot of Actual vs Predicted Values")
     fig = px.scatter(result_df, x='Actual', y='Predicted', labels={'Actual': 'Actual Values', 'Predicted': 'Predicted Values'})
+    st.plotly_chart(fig)
+
+    # Menampilkan feature importance
+    st.subheader("Feature Importance")
+    feature_importance = model.feature_importances_
+    feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance})
+    fig = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
     st.plotly_chart(fig)
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
