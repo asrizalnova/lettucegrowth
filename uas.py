@@ -107,8 +107,10 @@ elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
 
     # Date Range Input
-    date_range = st.date_input("Pilih range tanggal(Data hanya tersedia dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
+    date_range = st.date_input("Pilih range tanggal (Data hanya tersedia dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
 
+# Check if the date_range has two elements
+if len(date_range) == 2:
     start_date = np.datetime64(date_range[0])
     end_date = np.datetime64(date_range[1])
 
@@ -117,7 +119,6 @@ elif menu == 'Prediction':
 
     st.write("Dataframe yang Difilter:")
     st.write(filtered_dataframe)
-
     # Parameter input untuk model Random Forest
     n_estimators = st.slider("Jumlah Estimator (n_estimators)", min_value=1, max_value=500, value=100, step=1)
 
@@ -154,5 +155,8 @@ elif menu == 'Prediction':
     feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance})
     fig = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
     st.plotly_chart(fig)
+else:
+    st.warning("Silahkan pilih 2 tanggal/ jika ingin 1 tanggal klik tanggal tsb 2x.")
+
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
