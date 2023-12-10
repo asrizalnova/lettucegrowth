@@ -187,7 +187,7 @@ elif menu == 'Prediction':
             st.write(feature_importance_df)
 
             # Membuat bar chart untuk feature importance
-            st.subheader("Bar Chart of Feature Importance")
+            st.subheader("Bar Chart Feature Importance")
             fig_bar = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
             st.plotly_chart(fig_bar)
 
