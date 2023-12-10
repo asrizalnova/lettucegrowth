@@ -13,7 +13,7 @@ dataframe['Date'] = pd.to_datetime(dataframe['Date'])
 
 
 # Sidebar menu
-st.sidebar.title("Lettuce Growth Prediction")
+st.sidebar.title("Lettuce Growth")
 
 # Sidebar menu
 menu = st.sidebar.selectbox('Menu', ['Home', 'Exploratory Data Analysis', 'Prediction'])
