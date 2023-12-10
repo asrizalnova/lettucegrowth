@@ -116,11 +116,15 @@ elif menu == 'Prediction':
     # Pilih Features
     features = st.multiselect("Select Features:", ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level'], default=['Temperature (°C)'])
 
-    # Membuat sliders untuk setiap feature yang dipilih
-    sliders = {}
-    for feature in features:
-        value = st.slider(f"Estimator {feature} range", min_value=1, max_value=50, value=1, step=1)
-        sliders[feature] = value
+    sliders = {}  # Define sliders here to ensure it's in scope
+
+    if len(features) == 0:
+        st.warning("Silahkan pilih setidaknya satu parameter.")
+    else:
+        # Membuat sliders untuk setiap feature yang dipilih
+        for feature in features:
+            value = st.slider(f"Estimator {feature} range", min_value=1, max_value=50, value=1, step=1)
+            sliders[feature] = value
 
     if len(date_range) == 2:
         start_date = np.datetime64(date_range[0])
@@ -136,7 +140,7 @@ elif menu == 'Prediction':
         X = filtered_dataframe[features]
         y = filtered_dataframe['Growth Days']
 
-        # Check for missing values
+        # Cek missing values
         st.write("Missing Values in X:")
         st.write(X.isnull().sum())
 
@@ -156,32 +160,37 @@ elif menu == 'Prediction':
 
         # Inisialisasi dan train Random Forest model
         total_estimators = sum(sliders.values())
-        model = RandomForestRegressor(n_estimators=total_estimators, random_state=42)
-        model.fit(X_train, y_train)
 
-        # Membuat Prediksi
-        predictions = model.predict(X_test)
+        if total_estimators < 1:
+            st.warning("Setidaknya satu estimator harus dipilih.")
+        else:
+            model = RandomForestRegressor(n_estimators=total_estimators, random_state=42)
+            model.fit(X_train, y_train)
 
-        # Menampilkan prediction dan values nyata
-        st.write("Predictions vs Actual Values:")
-        result_df = pd.DataFrame({'Actual': y_test, 'Predicted': predictions})
-        st.write(result_df)
+            # Membuat Prediksi
+            predictions = model.predict(X_test)
 
-        # Menampilkan scatter plot nyata vs predicted values
-        st.subheader("Scatter Plot of Actual vs Predicted Values")
-        fig = px.scatter(result_df, x='Actual', y='Predicted', labels={'Actual': 'Actual Values', 'Predicted': 'Predicted Values'})
-        st.plotly_chart(fig)
+            # Menampilkan prediction dan values nyata
+            st.write("Predictions vs Actual Values:")
+            result_df = pd.DataFrame({'Actual': y_test, 'Predicted': predictions})
+            st.write(result_df)
 
-        # Menampilkan feature importance
-        st.subheader("Feature Importance")
-        feature_importance = model.feature_importances_
-        feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance})
-        st.write(feature_importance_df)
+            # Menampilkan scatter plot nyata vs predicted values
+            st.subheader("Scatter Plot of Actual vs Predicted Values")
+            fig = px.scatter(result_df, x='Actual', y='Predicted', labels={'Actual': 'Actual Values', 'Predicted': 'Predicted Values'})
+            st.plotly_chart(fig)
 
-        # Membuat bar chart untuk feature importance
-        st.subheader("Bar Chart of Feature Importance")
-        fig_bar = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
-        st.plotly_chart(fig_bar)
+            # Menampilkan feature importance
+            st.subheader("Feature Importance")
+            feature_importance = model.feature_importances_
+            feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance})
+            st.write(feature_importance_df)
+
+            # Membuat bar chart untuk feature importance
+            st.subheader("Bar Chart of Feature Importance")
+            fig_bar = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
+            st.plotly_chart(fig_bar)
+
 
     else:
         st.warning("Silahkan pilih 2 tanggal/ jika ingin 1 tanggal klik tanggal tsb 2x.")
