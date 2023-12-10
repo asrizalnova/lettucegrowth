@@ -113,26 +113,26 @@ elif menu == 'Prediction':
     # Date Range Input
     date_range = st.date_input("Pilih Range Tanggal (Data yang tersedia hanya dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
 
-    # Select Features
+    # Pilih Features
     features = st.multiselect("Select Features:", ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level'], default=['Temperature (°C)'])
 
-    # Create sliders for each selected feature
+    # Membuat sliders untuk setiap feature yang dipilih
     sliders = {}
     for feature in features:
         value = st.slider(f"Estimator {feature} range", min_value=1, max_value=50, value=1, step=1)
-        sliders[feature] = (value)
+        sliders[feature] = value
 
     if len(date_range) == 2:
         start_date = np.datetime64(date_range[0])
         end_date = np.datetime64(date_range[1])
 
-        # Filter dataframe by date range
+        # Filter dataframe berdasarkan date range
         filtered_dataframe = dataframe[(dataframe['Date'] >= start_date) & (dataframe['Date'] <= end_date)]
 
         st.write("Filtered DataFrame:")
         st.write(filtered_dataframe)
 
-        # Separate data into features and target
+        # Memisahkan data features dan target
         X = filtered_dataframe[features]
         y = filtered_dataframe['Growth Days']
 
@@ -143,47 +143,45 @@ elif menu == 'Prediction':
         st.write("Missing Values in y:")
         st.write(y.isnull().sum())
 
-        # Check data types
+        # Cek tipe data
         st.write("Data Types in X:")
         st.write(X.dtypes)
 
-        # Check target variable
+        # Cek target variable
         st.write("Data Types in y:")
         st.write(y.dtypes)
 
-        # Separate data into training and testing sets
+        # Memisahkan data menjadi training dan testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Initialize and train Random Forest model
-        total_estimators = sum(max_value for _, max_value in sliders.values())
+        # Inisialisasi dan train Random Forest model
+        total_estimators = sum(sliders.values())
         model = RandomForestRegressor(n_estimators=total_estimators, random_state=42)
         model.fit(X_train, y_train)
 
-
-        # Make predictions
+        # Membuat Prediksi
         predictions = model.predict(X_test)
 
-        # Display predictions and actual values
+        # Menampilkan prediction dan values nyata
         st.write("Predictions vs Actual Values:")
         result_df = pd.DataFrame({'Actual': y_test, 'Predicted': predictions})
         st.write(result_df)
 
-        # Display scatter plot of actual vs predicted values
+        # Menampilkan scatter plot nyata vs predicted values
         st.subheader("Scatter Plot of Actual vs Predicted Values")
         fig = px.scatter(result_df, x='Actual', y='Predicted', labels={'Actual': 'Actual Values', 'Predicted': 'Predicted Values'})
         st.plotly_chart(fig)
 
-        # Display feature importance
+        # Menampilkan feature importance
         st.subheader("Feature Importance")
         feature_importance = model.feature_importances_
         feature_importance_df = pd.DataFrame({'Feature': features, 'Importance': feature_importance})
         st.write(feature_importance_df)
 
-        # Create bar chart for feature importance
+        # Membuat bar chart untuk feature importance
         st.subheader("Bar Chart of Feature Importance")
         fig_bar = px.bar(feature_importance_df, x='Feature', y='Importance', title='Feature Importance')
         st.plotly_chart(fig_bar)
-
 
     else:
         st.warning("Silahkan pilih 2 tanggal/ jika ingin 1 tanggal klik tanggal tsb 2x.")
