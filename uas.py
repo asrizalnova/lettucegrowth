@@ -111,7 +111,7 @@ elif menu == 'Prediction':
     st.subheader("Lettuce Growth Prediction")
 
     # Date Range Input
-    date_range = st.date_input("Select Date Range (Data is available from August 3 - September 19)", [dataframe['Date'].min(), dataframe['Date'].max()])
+    date_range = st.date_input("Pilih Range Tanggal (Data yang tersedia hanya dari 3 Agustus - 19 September)", [dataframe['Date'].min(), dataframe['Date'].max()])
 
     # Select Features
     features = st.multiselect("Select Features:", ['Temperature (°C)', 'Humidity (%)', 'TDS Value (ppm)', 'pH Level'], default=['Temperature (°C)'])
@@ -119,7 +119,7 @@ elif menu == 'Prediction':
     # Create sliders for each selected feature
     sliders = {}
     for feature in features:
-        value = st.slider(f"Estimator {feature} range", min_value=1, max_value=50, value=[1,3], step=1)
+        value = st.slider(f"Estimator {feature} range", min_value=1, max_value=50, value=1, step=1)
         sliders[feature] = (value)
 
     if len(date_range) == 2:
